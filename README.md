@@ -32,7 +32,7 @@ FARMER SONIC is a DeFi project that allows users to hold FARM tokens and earn SO
 This repository contains the smart contracts for the FARMER SONIC project:
 
 1. **FARMER.sol**: The main ERC20 token contract with tax, liquidity, and airdrop functionality
-2. **SwapProxy.sol**: Helper contract for handling token swaps and ETH transfers
+2. **SwapProxy.sol**: Helper contract for handling token swaps and S(eth on contract) transfers
 
 ## Technical Details
 

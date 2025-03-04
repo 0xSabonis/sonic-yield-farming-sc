@@ -61,17 +61,8 @@ To participate in the FARMER SONIC ecosystem:
 
 ## Development
 
-The smart contracts are written in Solidity ^0.8.17 and are designed to work with the Metropolis DEX.
+The smart contracts are written in Solidity ^0.8.17 & 0.8.20 and are designed to work with the Metropolis DEX.
 
-### Prerequisites
-
-- Node.js and npm
-- Hardhat or Truffle
-- Solidity ^0.8.17
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Disclaimer
 

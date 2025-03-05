@@ -38,7 +38,7 @@ contract SwapProxy {
         uint256 balance = address(this).balance;
         require(balance > 0, "No ETH balance to send");
         
-        (bool success, ) = payable(farmerContract).call{value: balance, gas: 50000}("");
+        (bool success, ) = payable(farmerContract).call{value: balance}("");
         require(success, "ETH transfer failed");
     }
     

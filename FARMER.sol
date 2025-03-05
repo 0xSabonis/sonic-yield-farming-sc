@@ -294,7 +294,7 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
     uint256 private constant TAX_RATE = 5; // 5%
     uint256 private constant LIQUIDITY_TAX = 25; // 2.5%
     uint256 private constant AIRDROP_TAX = 25; // 2.5%
-    uint256 private constant MIN_HOLDER_AMOUNT = 10 * 10**18; // 10 tokens minimum for holder status
+    uint256 private constant MIN_HOLDER_AMOUNT = 100 * 10**18; // 100 tokens minimum for holder status
     uint256 private constant MIN_TOKENS_FOR_PROCESS = 50 * 10**18;
     uint256 private constant SWAP_PERCENTAGE = 75; // 75% will be swapped
     uint256 private constant LIQUIDITY_PERCENTAGE = 25; // 25% will be used for liquidity
@@ -341,11 +341,15 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
     
     uint256 private _lastProcessingTime;
 
+    uint256 private _lastProcessedHolderIndex;
+
     constructor() ERC20("FARMER", "FARM") Ownable(msg.sender) {
-        address _metropolisRouter = 0x0000000000000000000000000000000000000000; //metropolis_router_ca_here;
-        address _metropolisFactory = 0x0000000000000000000000000000000000000000; //metropolis_factory_ca_here;
-        address _sonicToken = 0x0000000000000000000000000000000000000000; //wrapped_sonic_token_ca_here;
+        address _metropolisRouter = 0x0000000000000000000000000000000000000000; //metropolis_router_ca_here; 
+        address _metropolisFactory = 0x0000000000000000000000000000000000000000; //metropolis_factory_ca_here; 
+        address _sonicToken = 0x0000000000000000000000000000000000000000; //wrapped_sonic_token_ca_here; 
         address _treasuryWallet = 0x0000000000000000000000000000000000000000; //treasury_wallet_here;
+
+        
 
         require(_metropolisRouter != address(0) && _metropolisFactory != address(0) && _sonicToken != address(0) && _treasuryWallet != address(0), "F1");
 
@@ -411,7 +415,7 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
                     
                     emit ReadyForProcessing(_pendingLiquidityTokens + _pendingAirdropTokens, 400000);
                     
-                    emit RewardAvailableForProcessing(_pendingLiquidityTokens + _pendingAirdropTokens, 5); // %5 ödül
+                    emit RewardAvailableForProcessing(_pendingLiquidityTokens + _pendingAirdropTokens, 5);
                 }
                 
                 _updateHolder(from, balanceOf(from) >= MIN_HOLDER_AMOUNT);
@@ -542,8 +546,6 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
         _inSwap = false;
     }
 
-    function _processLiquidity(uint256 wethAmount, uint256 tokenAmount) private {
-    }
 
     function _addLiquidity(uint256 ethAmount, uint256 tokenAmount) private {
         uint256 contractTokenBalance = balanceOf(address(this));
@@ -643,21 +645,78 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
         }
         
         if (holdersCount > 0 && holderAmount > 0) {
+            uint256 currentHolderCount = holders.length;
+
+            if (currentHolderCount != holdersCount) {
+
+                if (_lastProcessedHolderIndex >= currentHolderCount) {
+
+                    _lastProcessedHolderIndex = currentHolderCount > 0 ? currentHolderCount - 1 : 0;
+                }
+                holdersCount = currentHolderCount;
+            }
+            
+            if (holdersCount == 0) {
+                emit AirdropFailed("No holders left to distribute");
+                return;
+            }
+            
             uint256 amountPerHolder = holderAmount / holdersCount;
             if (amountPerHolder > 0) {
-                for (uint256 i = 0; i < holdersCount; i++) {
+                uint256 maxHoldersToProcess = 50;
+                
+                uint256 startIndex = _lastProcessedHolderIndex % holdersCount;
+                
+                uint256 processedCount = 0;
+                
+                uint256[] memory validIndices = new uint256[](maxHoldersToProcess);
+                uint256 validCount = 0;
+                
+                for (uint256 i = startIndex; i < holdersCount && validCount < maxHoldersToProcess; i++) {
                     address holder = holders[i];
                     if (holder != address(0) && holder != address(this) && holder != liquidityPair) {
+                        validIndices[validCount] = i;
+                        validCount++;
+                    }
+                }
+                
+                if (validCount < maxHoldersToProcess && startIndex > 0) {
+                    for (uint256 i = 0; i < startIndex && validCount < maxHoldersToProcess; i++) {
+                        address holder = holders[i];
+                        if (holder != address(0) && holder != address(this) && holder != liquidityPair) {
+                            validIndices[validCount] = i;
+                            validCount++;
+                        }
+                    }
+                }
+                
+                for (uint256 j = 0; j < validCount; j++) {
+                    uint256 idx = validIndices[j];
+                    address holder = holders[idx];
+                    
+                    if (holder != address(0) && holder != address(this) && holder != liquidityPair && isHolder[holder]) {
                         (bool success, ) = holder.call{value: amountPerHolder}("");
                         if (!success) {
                             emit AirdropFailed("ETH transfer failed");
                         }
+                        processedCount++;
                     }
+                }
+                
+                if (validCount > 0) {
+                    _lastProcessedHolderIndex = (validIndices[validCount - 1] + 1) % holdersCount;
+                } else {
+                    _lastProcessedHolderIndex = 0;
+                }
+                
+                if (_pendingLiquidityTokens + _pendingAirdropTokens > 0 && 
+                    (_lastProcessedHolderIndex == 0 || _lastProcessedHolderIndex == startIndex)) {
+                    emit AirdropDistributed(amount, processedCount);
+                } else {
+                    emit AirdropDistributed(amount, processedCount);
                 }
             }
         }
-        
-        emit AirdropDistributed(amount, holdersCount);
     }
 
     // View functions
@@ -681,7 +740,7 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
         
         timeUntilNextProcessing = 0;
         
-        recommendedGasLimit = 400000; // 400,000 gas units
+        recommendedGasLimit = 800000; // 800,000 gas units
     }
 
     // Initial liquidity function with WSonic
@@ -789,28 +848,103 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
     function getPendingAirdropTokens() external view returns (uint256) {
         return _pendingAirdropTokens;
     }
-
-    // Manual trigger for processing (anyone can call)
-    function triggerProcessing() external {
-        require(_pendingLiquidityTokens > 0 || _pendingAirdropTokens > 0, "NP");
-        require(holders.length > 0, "NH");
-        try this.processLiquidityAndAirdrop() {
-            // Process successful
-        } catch {
-            emit ProcessStarted(_pendingLiquidityTokens, _pendingAirdropTokens);
-        }
-    }
     
     function processLiquidityAndAirdropAndGetReward() external {
-        require(_pendingLiquidityTokens > 0 || _pendingAirdropTokens > 0, "NP: Islenecek token yok");
-        require(holders.length > 0, "NH: Islem yapilacak holder bulunamadi");
+        require(_pendingLiquidityTokens > 0 || _pendingAirdropTokens > 0, "NP: No Token Left");
+        require(holders.length > 0, "NH: No Holder Left");
         
-        try this.processLiquidityAndAirdrop() {
-        } catch Error(string memory reason) {
-            emit SwapFailed(reason);
-        } catch {
-            emit SwapFailed("processLiquidityAndAirdrop basarisiz");
+        require(!_inSwap, "AP");
+        _inSwap = true;
+        
+        uint256 tokensForLiquidity = _pendingLiquidityTokens;
+        uint256 tokensForAirdrop = _pendingAirdropTokens;
+        
+        if (tokensForLiquidity == 0 && tokensForAirdrop == 0) {
+            _inSwap = false;
+            return;
         }
+        
+        uint256 contractTokenBalance = balanceOf(address(this));
+        uint256 totalTokensToProcess = tokensForLiquidity + tokensForAirdrop;
+        
+        if (contractTokenBalance < totalTokensToProcess) {
+            emit SwapFailed("Insufficient token balance");
+            _inSwap = false;
+            return;
+        }
+        
+        address caller = msg.sender;
+        
+        uint256 maxProcessAmount = 200 * 10**18;
+        uint256 totalTokensToSwap = tokensForLiquidity + tokensForAirdrop;
+        
+        if (totalTokensToSwap > maxProcessAmount) {
+            uint256 ratio = maxProcessAmount * 1e18 / totalTokensToSwap;
+            tokensForLiquidity = tokensForLiquidity * ratio / 1e18;
+            tokensForAirdrop = tokensForAirdrop * ratio / 1e18;
+            totalTokensToSwap = tokensForLiquidity + tokensForAirdrop;
+            
+            _pendingLiquidityTokens -= tokensForLiquidity;
+            _pendingAirdropTokens -= tokensForAirdrop;
+        } else {
+            _pendingLiquidityTokens = 0;
+            _pendingAirdropTokens = 0;
+        }
+        
+        _lastProcessingTime = block.timestamp;
+        
+        emit ProcessStarted(tokensForLiquidity, tokensForAirdrop);
+        
+        // Refresh approvals
+        _approve(address(this), address(metropolisRouter), type(uint256).max);
+        
+        uint256 initialEthBalance = address(this).balance;
+        
+        uint256 ethReceived = _processSwap(totalTokensToSwap);
+        
+        if (ethReceived == 0) {
+            _inSwap = false;
+            return;
+        }
+        
+        uint256 contractEthBalance = address(this).balance;
+        if (contractEthBalance <= initialEthBalance) {
+            emit SwapFailed("No ETH received from swap");
+            _inSwap = false;
+            return;
+        }
+        
+        uint256 actualEthReceived = contractEthBalance - initialEthBalance;
+        
+        uint256 callerReward = 0;
+        if (caller != owner() && caller != address(this)) {
+            callerReward = actualEthReceived * 5 / 100;
+            if (callerReward > 0) {
+                (bool success, ) = caller.call{value: callerReward}("");
+                if (!success) {
+                    callerReward = 0;
+                } else {
+                    emit ProcessorRewarded(caller, callerReward);
+                }
+            }
+        }
+        
+        actualEthReceived = actualEthReceived - callerReward;
+        
+        // Calculate amounts
+        uint256 ethForLiquidity = actualEthReceived * tokensForLiquidity / totalTokensToSwap;
+        uint256 ethForAirdrop = actualEthReceived - ethForLiquidity;
+        
+        if (ethForLiquidity > 0) {
+            _addLiquidity(ethForLiquidity, tokensForLiquidity);
+        }
+        
+        // Process airdrop with ETH
+        if (ethForAirdrop > 0) {
+            _processAirdropWithETH(ethForAirdrop);
+        }
+        
+        _inSwap = false;
     }
 
     function refreshAllApprovals() external onlyOwner {
@@ -898,5 +1032,37 @@ contract FARMER is ERC20, ReentrancyGuard, Ownable {
         swapProxy = _swapProxy;
         swapProxySet = true;
         emit SwapProxySet(_swapProxy);
+    }
+
+    function getProcessingInfo() external view returns (
+        uint256 pendingLiquidityTokens,
+        uint256 pendingAirdropTokens,
+        uint256 totalHolders,
+        uint256 lastProcessedHolderIndex,
+        uint256 nextHolderBatch,
+        bool isProcessingComplete,
+        bool isFullCycleComplete
+    ) {
+        pendingLiquidityTokens = _pendingLiquidityTokens;
+        pendingAirdropTokens = _pendingAirdropTokens;
+        totalHolders = holders.length;
+        lastProcessedHolderIndex = _lastProcessedHolderIndex;
+        
+        uint256 maxHoldersToProcess = 50;
+        
+        uint256 remainingHolders = 0;
+        if (totalHolders > 0) {
+            if (lastProcessedHolderIndex >= totalHolders) {
+                remainingHolders = totalHolders;
+            } else {
+                remainingHolders = totalHolders - lastProcessedHolderIndex;
+            }
+        }
+        
+        nextHolderBatch = remainingHolders < maxHoldersToProcess ? remainingHolders : maxHoldersToProcess;
+        
+        isProcessingComplete = (pendingLiquidityTokens + pendingAirdropTokens == 0);
+        
+        isFullCycleComplete = (lastProcessedHolderIndex == 0 && pendingLiquidityTokens + pendingAirdropTokens > 0);
     }
 }

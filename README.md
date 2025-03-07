@@ -1,73 +1,64 @@
-# FARMER SONIC
+# 🌾 SONIC Yield Farming - Earn SONIC While You Hold!
 
-## Overview
+## 🚀 Introduction
 
-FARMER SONIC is a DeFi project that allows users to hold FARM tokens and earn SONIC rewards on every trade. The project operates on a simple principle: hold more than 100 FARM tokens and automatically earn $SONIC rewards.
+FARMER SONIC is a next-gen DeFi project designed to reward holders in an automated and seamless manner. By simply holding more than 100 FARM tokens, users receive SONIC rewards on every trade. No staking, no claiming—just passive income straight to your wallet.
 
-**Website**: [https://farmersonic.xyz/](https://farmersonic.xyz/)  
-**Twitter**: [@FarmerSonic](https://twitter.com/FarmerSonic)
+## 🔥 Why Choose FARMER SONIC?
 
-## Key Features
+- **📈 Hold & Earn:** Own FARM tokens and get rewarded in SONIC.
+- **⚖️ Fair Reward Distribution:** Rewards are distributed equally among eligible holders.
+- **💧 Auto Liquidity:** A percentage of each transaction contributes to liquidity.
+- **🎁 Holder Incentives:** Airdrop system that boosts engagement and rewards the community.
 
-- **Hold & Earn**: Hold FARM tokens and earn SONIC rewards automatically
-- **Equal Distribution**: Fair distribution of SONIC rewards to all eligible holders
-- **Automatic Liquidity**: A portion of each transaction is used to add liquidity
-- **Holder Rewards**: Airdrop system that rewards token holders
+## 🏦 Tokenomics Breakdown
 
-## Tokenomics
+- **Token Name:** FARMER
+- **Ticker Symbol:** FARM
+- **Total Supply:** 1,000,000 FARM
+- **Minimum Holding:** 100 FARM (to qualify for rewards)
 
-- **Token Name**: FARMER
-- **Token Symbol**: FARM
-- **Total Supply**: 1,000,000 FARM
-- **Minimum Holding**: 100 FARM to qualify for rewards
+### 🔄 Transaction Tax Breakdown
 
-### Tax Structure
+- **5% Total Tax on Sells:**
+  - 2.5% allocated for Liquidity Pool
+  - 2.5% reserved for Airdrops & Rewards
 
-- **Total Tax**: 5% on sells
-  - 2.5% for Liquidity
-  - 2.5% for Holder Airdrops
+## 🛠️ Smart Contracts & Mechanisms
 
-## Smart Contracts
+This repository includes the core smart contracts that power the FARMER SONIC ecosystem:
 
-This repository contains the smart contracts for the FARMER SONIC project:
+### 📜 Smart Contracts
 
-1. **FARMER.sol**: The main ERC20 token contract with tax, liquidity, and airdrop functionality
-2. **SwapProxy.sol**: Helper contract for handling token swaps and S(eth on contract) transfers
+1. **FARMER.sol** - The main ERC20 token contract with tax logic, liquidity features, and reward distributions.
+2. **SwapProxy.sol** - An auxiliary contract managing token swaps and ETH transfers for smooth trading.
 
-## Technical Details
+### 🔐 Security & Features
 
-The FARMER token implements several key mechanisms:
+- **🛡️ Reentrancy Protection:** Secures against reentrancy attacks.
+- **🔧 Owner Controls:** Limited functions for admin adjustments.
+- **📊 Slippage Protection:** Prevents excessive slippage in trades.
+- **📌 Proxy Architecture:** Secure proxy handling ETH transfers efficiently.
 
-- **Holder Tracking**: Automatically tracks addresses holding the minimum required amount
-- **Automatic Processing**: Accumulated taxes are processed into liquidity and airdrops
-- **Reward Distribution**: ETH rewards are distributed to all qualifying holders
-- **Liquidity Generation**: Automatic liquidity addition to strengthen the token's market
+## 🚀 How to Get Started
 
-## Security Features
+Getting into FARMER SONIC is simple:
 
-- **Reentrancy Protection**: Guards against reentrancy attacks
-- **Owner Controls**: Limited owner functions for necessary adjustments
-- **Slippage Protection**: Prevents excessive slippage during swaps
-- **Proxy Architecture**: Secure swap proxy for handling ETH transfers
+1. **Buy FARM tokens** on Metropolis DEX.
+2. **Hold at least 100 FARM** in your wallet.
+3. **Enjoy SONIC rewards** automatically distributed to you on every trade.
+4. **No staking, no claiming**—just hold and earn.
 
-## Getting Started
+## 🛠️ Development & Compatibility
 
-To participate in the FARMER SONIC ecosystem:
+- Built using **Solidity 0.8.17 & 0.8.20**.
+- Designed to integrate seamlessly with the **Metropolis DEX**.
 
-1. Purchase FARM tokens on the Metropolis DEX
-2. Hold at least 100 FARM tokens in your wallet
-3. Automatically receive SONIC rewards on every trade
-4. No staking or claiming required - rewards are sent directly to your wallet
+## ⚠️ Disclaimer
 
-## Development
-
-The smart contracts are written in Solidity ^0.8.17 & 0.8.20 and are designed to work with the Metropolis DEX.
-
-
-## Disclaimer
-
-This project is provided as-is without any guarantees or warranties. Users should do their own research before interacting with any smart contracts.
+This project is offered as-is, with no guarantees or warranties. Users are responsible for conducting their own research before engaging with any smart contract.
 
 ---
 
-**FARM and EARN SONIC - This is a free farm. Equal Sonic for everyone!** 
+🌾 **FARM and EARN SONIC – A fair and decentralized reward system for all!** 🚜
+

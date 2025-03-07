@@ -46,7 +46,7 @@ contract SwapProxy {
         uint256 balance = address(this).balance;
         if (balance > 0) {
             (bool success, ) = payable(owner).call{value: balance}("");
-            require(success, "ETH transfer failed");
+            require(success, "emergencyWithdraw failed!");
         }
     }
 }

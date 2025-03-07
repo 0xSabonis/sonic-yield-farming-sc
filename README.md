@@ -58,6 +58,10 @@ Getting into FARMER SONIC is simple:
 
 This project is offered as-is, with no guarantees or warranties. Users are responsible for conducting their own research before engaging with any smart contract.
 
+## Contact
+
+Telegram | [dogewhiz](https://t.me/dogewhiz)
+
 ---
 
 🌾 **FARM and EARN SONIC – A fair and decentralized reward system for all!** 🚜

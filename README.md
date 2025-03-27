@@ -64,5 +64,3 @@ Telegram | [dogewhiz](https://t.me/dogewhiz)
 
 ---
 
-🌾 **FARM and EARN SONIC – A fair and decentralized reward system for all!** 🚜
-

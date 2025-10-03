@@ -60,7 +60,8 @@ This project is offered as-is, with no guarantees or warranties. Users are respo
 
 ## Contact
 
-Telegram | [dogewhiz](https://t.me/dogewhiz)
+Telegram | [Sabonis](https://t.me/sabonis_24)
 
 ---
+
 
